@@ -2,18 +2,22 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>
+#include<process.h>
 
 using namespace std;
 
 int x, y, i, j, BodySize = 1, flag = 0;
 char Grid[10][10];
 char ch;
-int si, sj;
+int si, sj, score=0, ScoreFlag=0;
+
 void ShowGrid();
 void SetGrid();
 void FoodLoc();
 void BodyUpdate(int si, int sj);
 void SpawnLoc(int & si,int & sj);
+void DeathChk(int si, int sj);
+void ScoreCalc(int si, int sj);
 
 void main()
 {
@@ -24,6 +28,76 @@ void main()
 	while (flag != 1)
 	{
 		BodyUpdate(si, sj);
+	}
+}
+
+void BodyUpdate(int si, int sj)
+{
+UpdateLoop:
+	DeathChk(si, sj);
+	if (ScoreFlag == 1)
+	{
+		FoodLoc();
+	}
+	ScoreFlag = 0;
+	cout << "I=" << si << " J=" << sj << endl;		//DEBUG
+	cin >> ch;
+	system("cls");
+	switch (ch)
+	{
+	case 'w':
+	{
+		{
+			Grid[si][sj] = ' ';
+			ScoreCalc(si - 1, sj);
+			Grid[si - 1][sj] = 'o';
+			ShowGrid();
+			--si;
+			if (getchar())
+				goto UpdateLoop;
+		}
+	}
+	break;
+	case 'a':
+	{
+		{
+			Grid[si][sj] = ' ';
+			ScoreCalc(si, sj - 1);
+			Grid[si][sj - 1] = 'o';
+			ShowGrid();
+			--sj;
+			if (getchar())
+				goto UpdateLoop;
+		}
+	}
+	break;
+	case 's':
+	{
+		{
+			Grid[si][sj] = ' ';
+			ScoreCalc(si + 1, sj);
+			Grid[si + 1][sj] = 'o';
+			ShowGrid();
+			++si;
+			if (getchar())
+				goto UpdateLoop;
+		}
+	}
+	break;
+	case 'd':
+	{
+		{
+			Grid[si][sj] = ' ';
+			ScoreCalc(si, sj + 1);
+			Grid[si][sj + 1] = 'o';
+			ShowGrid();
+			++sj;
+			if (getchar())
+				goto UpdateLoop;
+		}
+	}
+	break;
+	default: goto UpdateLoop;
 	}
 }
 
@@ -41,6 +115,7 @@ void ShowGrid()
 		cout << "|" << endl;
 	}
 	cout << " +---------------------+" << endl;
+	cout << "Score: " << score << endl;				//DEBUG
 }
 
 void SetGrid()
@@ -86,62 +161,21 @@ void SpawnLoc(int &si, int &sj)
 	Grid[si][sj] = 'o';
 }
 
-void BodyUpdate(int si, int sj)
+void DeathChk(int si, int sj)
 {
-UpdateLoop:
-	cout << "I=" << si << " J=" << sj << endl;		//DEBUG
-	cin >> ch;
-	system("cls");
-	switch (ch)
+	if (si == -1 || sj == -1 || si == 10 || sj == 10)
 	{
-	case 'w':
+		system("CLS");
+		cout << "YOU ARE DEAD." << endl;
+		exit(0);
+	}
+}
+
+void ScoreCalc(int si, int sj)
+{
+	if (Grid[si][sj] == '@')
 	{
-		{
-			Grid[si][sj] = ' ';
-			Grid[si-1][sj] = 'o';
-			ShowGrid();
-			--si;
-			if (getchar())
-				goto UpdateLoop;
-		}
-	}
-	break;
-	case 'a':
-	{
-		{
-			Grid[si][sj] = ' ';
-			Grid[si][sj-1] = 'o';
-			ShowGrid(); 
-			--sj;
-			if (getchar())
-				goto UpdateLoop;
-		}
-	}
-	break;
-	case 's':
-	{			
-		{
-			Grid[si][sj] = ' ';
-			Grid[si + 1][sj] = 'o';
-			ShowGrid();
-			++si;
-			if (getchar())
-				goto UpdateLoop;
-		}
-	}
-	break;
-	case 'd':
-	{
-		{
-			Grid[si][sj] = ' ';
-			Grid[si][sj+1] = 'o';
-			ShowGrid();
-			++sj;
-			if (getchar())
-				goto UpdateLoop;
-		}
-	}
-	break;
-	default: goto UpdateLoop;
+		score = score + 1;
+		ScoreFlag = 1;
 	}
 }
